@@ -24,6 +24,17 @@ pub struct WebpackLoadersOptions {
     pub placeholder_for_future_extensions: (),
 }
 
+#[turbo_tasks::value(shared)]
+#[derive(Default, Clone, Debug)]
+pub enum ReactTransform {
+    #[default]
+    Disabled,
+    Enabled {
+        enable_react_refresh: bool,
+        development: bool,
+    },
+}
+
 /// Subset of Typescript options configured via tsconfig.json or jsconfig.json,
 /// which affects the runtime transform output.
 #[turbo_tasks::value(shared)]
@@ -64,7 +75,7 @@ impl WebpackLoadersOptions {
 #[derive(Default, Clone)]
 pub struct ModuleOptionsContext {
     #[serde(default)]
-    pub enable_jsx: bool,
+    pub react_transform: ReactTransform,
     #[serde(default)]
     pub enable_emotion: bool,
     #[serde(default)]

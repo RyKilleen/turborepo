@@ -25,6 +25,9 @@ pub struct Code {
     mappings: Vec<(usize, Option<GenerateSourceMapVc>)>,
 }
 
+#[turbo_tasks::value(transparent)]
+pub struct OptionCode(Code);
+
 /// CodeBuilder provides a mutable container to append source code.
 #[derive(Default)]
 pub struct CodeBuilder {

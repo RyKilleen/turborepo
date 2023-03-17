@@ -33,6 +33,8 @@ pub enum EcmascriptInputTransform {
     React {
         #[serde(default)]
         refresh: bool,
+        #[serde(default)]
+        development: bool,
     },
     StyledComponents,
     StyledJsx,
@@ -104,13 +106,16 @@ impl EcmascriptInputTransform {
             ..
         } = ctx;
         match self {
-            EcmascriptInputTransform::React { refresh } => {
+            EcmascriptInputTransform::React {
+                refresh,
+                development,
+            } => {
                 program.visit_mut_with(&mut react(
                     source_map.clone(),
                     Some(comments.clone()),
                     swc_core::ecma::transforms::react::Options {
                         runtime: Some(swc_core::ecma::transforms::react::Runtime::Automatic),
-                        development: Some(true),
+                        development: Some(*development),
                         refresh: if *refresh {
                             Some(swc_core::ecma::transforms::react::RefreshOptions {
                                 ..Default::default()

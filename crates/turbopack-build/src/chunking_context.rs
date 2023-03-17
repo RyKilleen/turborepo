@@ -18,18 +18,15 @@ use turbopack_ecmascript::chunk::{
     EcmascriptChunkRuntimeVc,
 };
 
-use crate::ecmascript::runtime::{EcmascriptDevChunkRuntimeMode, EcmascriptDevChunkRuntimeVc};
+use crate::ecmascript::node::runtime::{
+    EcmascriptBuildNodeChunkRuntimeMode, EcmascriptBuildNodeChunkRuntimeVc,
+};
 
-pub struct DevChunkingContextBuilder {
-    context: DevChunkingContext,
+pub struct BuildChunkingContextBuilder {
+    context: BuildChunkingContext,
 }
 
-impl DevChunkingContextBuilder {
-    pub fn hot_module_replacement(mut self) -> Self {
-        self.context.enable_hot_module_replacement = true;
-        self
-    }
-
+impl BuildChunkingContextBuilder {
     pub fn layer(mut self, layer: &str) -> Self {
         self.context.layer = (!layer.is_empty()).then(|| layer.to_string());
         self
@@ -40,19 +37,15 @@ impl DevChunkingContextBuilder {
         self
     }
 
-    pub fn build(self) -> ChunkingContextVc {
-        DevChunkingContextVc::new(Value::new(self.context)).into()
+    pub fn build(self) -> BuildChunkingContextVc {
+        BuildChunkingContextVc::new(Value::new(self.context))
     }
 }
 
-/// A chunking context for development mode.
-/// It uses readable filenames and module ids to improve development.
-/// It also uses a chunking heuristic that is incremental and cacheable.
-/// It splits "node_modules" separately as these are less likely to change
-/// during development
+/// A chunking context for build mode.
 #[turbo_tasks::value(serialization = "auto_for_input")]
 #[derive(Debug, Clone, Hash, PartialOrd, Ord)]
-pub struct DevChunkingContext {
+pub struct BuildChunkingContext {
     /// This path get striped off of path before creating a name out of it
     context_path: FileSystemPathVc,
     /// This path is used to compute the url to request chunks or assets from
@@ -65,29 +58,26 @@ pub struct DevChunkingContext {
     asset_root_path: FileSystemPathVc,
     /// Layer name within this context
     layer: Option<String>,
-    /// Enable HMR for this chunking
-    enable_hot_module_replacement: bool,
     /// The environment chunks will be evaluated in.
     environment: EnvironmentVc,
 }
 
-impl DevChunkingContextVc {
+impl BuildChunkingContextVc {
     pub fn builder(
         context_path: FileSystemPathVc,
         output_root: FileSystemPathVc,
         chunk_root_path: FileSystemPathVc,
         asset_root_path: FileSystemPathVc,
         environment: EnvironmentVc,
-    ) -> DevChunkingContextBuilder {
-        DevChunkingContextBuilder {
-            context: DevChunkingContext {
+    ) -> BuildChunkingContextBuilder {
+        BuildChunkingContextBuilder {
+            context: BuildChunkingContext {
                 context_path,
                 output_root,
                 chunk_root_path,
                 css_chunk_root_path: None,
                 asset_root_path,
                 layer: None,
-                enable_hot_module_replacement: false,
                 environment,
             },
         }
@@ -95,15 +85,15 @@ impl DevChunkingContextVc {
 }
 
 #[turbo_tasks::value_impl]
-impl DevChunkingContextVc {
+impl BuildChunkingContextVc {
     #[turbo_tasks::function]
-    fn new(this: Value<DevChunkingContext>) -> Self {
+    fn new(this: Value<BuildChunkingContext>) -> Self {
         this.into_value().cell()
     }
 }
 
 #[turbo_tasks::value_impl]
-impl ChunkingContext for DevChunkingContext {
+impl ChunkingContext for BuildChunkingContext {
     #[turbo_tasks::function]
     fn output_root(&self) -> FileSystemPathVc {
         self.output_root
@@ -263,39 +253,51 @@ impl ChunkingContext for DevChunkingContext {
     }
 
     #[turbo_tasks::function]
-    fn is_hot_module_replacement_enabled(&self) -> BoolVc {
-        BoolVc::cell(self.enable_hot_module_replacement)
-    }
-
-    #[turbo_tasks::function]
     fn layer(&self) -> StringVc {
         StringVc::cell(self.layer.clone().unwrap_or_default())
     }
 
     #[turbo_tasks::function]
-    async fn with_layer(self_vc: DevChunkingContextVc, layer: &str) -> Result<ChunkingContextVc> {
+    async fn with_layer(self_vc: BuildChunkingContextVc, layer: &str) -> Result<ChunkingContextVc> {
         let mut context = self_vc.await?.clone_value();
         context.layer = (!layer.is_empty()).then(|| layer.to_string());
-        Ok(DevChunkingContextVc::new(Value::new(context)).into())
+        Ok(BuildChunkingContextVc::new(Value::new(context)).into())
     }
 }
 
 #[turbo_tasks::value_impl]
-impl EcmascriptChunkContext for DevChunkingContext {
+impl EcmascriptChunkContext for BuildChunkingContext {
     #[turbo_tasks::function]
     fn ecmascript_runtime(self_vc: EcmascriptChunkContextVc) -> EcmascriptChunkRuntimeVc {
-        EcmascriptDevChunkRuntimeVc::new(
+        EcmascriptBuildNodeChunkRuntimeVc::new(
             self_vc,
-            Value::new(EcmascriptDevChunkRuntimeMode::Register),
+            Value::new(EcmascriptBuildNodeChunkRuntimeMode::Register),
         )
         .into()
     }
 
     #[turbo_tasks::function]
     fn evaluated_ecmascript_runtime(self_vc: EcmascriptChunkContextVc) -> EcmascriptChunkRuntimeVc {
-        EcmascriptDevChunkRuntimeVc::new(
+        EcmascriptBuildNodeChunkRuntimeVc::new(
             self_vc,
-            Value::new(EcmascriptDevChunkRuntimeMode::RegisterAndEvaluate),
+            Value::new(EcmascriptBuildNodeChunkRuntimeMode::RegisterAndEvaluate),
+        )
+        .into()
+    }
+}
+
+#[turbo_tasks::value_impl]
+impl BuildChunkingContextVc {
+    #[turbo_tasks::function]
+    pub fn exported_ecmascript_runtime(
+        self_vc: EcmascriptChunkContextVc,
+        entry: EcmascriptChunkPlaceableVc,
+    ) -> EcmascriptChunkRuntimeVc {
+        EcmascriptBuildNodeChunkRuntimeVc::new(
+            self_vc,
+            Value::new(EcmascriptBuildNodeChunkRuntimeMode::RegisterAndExport(
+                entry,
+            )),
         )
         .into()
     }

@@ -27,6 +27,7 @@ pub mod target;
 mod utils;
 pub mod version;
 pub mod virtual_asset;
+pub mod virtual_fs;
 
 pub fn register() {
     turbo_tasks::register();
