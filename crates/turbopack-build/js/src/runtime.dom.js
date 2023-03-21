@@ -117,7 +117,7 @@ let BACKEND;
 
   function waitForChunksToLoad(chunks) {
     const promises = [];
-    for (const chunkPath in chunks) {
+    for (const chunkPath of chunks) {
       const resolver = getOrCreateResolver(chunkPath);
       if (!resolver.resolved) {
         promises.push(resolver.promise);
