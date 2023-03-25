@@ -1,71 +1,73 @@
-<p align="center">
-  <a href="https://turbo.build">
-    <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="https://user-images.githubusercontent.com/4060187/196936123-f6e1db90-784d-4174-b774-92502b718836.png">
-      <img src="https://user-images.githubusercontent.com/4060187/196936104-5797972c-ab10-4834-bd61-0d1e5f442c9c.png" height="128">
-    </picture>
-    <h1 align="center">Turbo</h1>
-  </a>
-</p>
+# Turborepo starter
 
-<p align="center">
-  <a aria-label="Vercel logo" href="https://vercel.com/">
-    <img src="https://img.shields.io/badge/MADE%20BY%20Vercel-000000.svg?style=for-the-badge&logo=Vercel&labelColor=000">
-  </a>
-  <a aria-label="NPM version" href="https://www.npmjs.com/package/turbo">
-    <img alt="" src="https://img.shields.io/npm/v/turbo.svg?style=for-the-badge&labelColor=000000">
-  </a>
-  <a aria-label="License" href="https://github.com/vercel/turbo/blob/main/LICENSE">
-    <img alt="" src="https://img.shields.io/npm/l/turbo.svg?style=for-the-badge&labelColor=000000&color=">
-  </a>
-  <a aria-label="Join the community on GitHub" href="https://github.com/vercel/turbo/discussions">
-    <img alt="" src="https://img.shields.io/badge/Join%20the%20community-blueviolet.svg?style=for-the-badge&logo=turborepo&labelColor=000000&logoWidth=20&logoColor=white">
-  </a>
-</p>
+This is an official npm starter turborepo.
 
-Turbo is a next-generation toolchain for frontend development, written in Rust. It consists of 3 major parts:
+## What's inside?
 
-- [**Turbopack:**](https://turbo.build/pack) an incremental bundler (the successor to Webpack)
-- [**Turborepo:**](https://turbo.build/repo) an incremental build system
-- The Turbo engine: a low-level incremental computation and memoization engine
+This turborepo uses [npm](https://www.npmjs.com/) as a package manager. It includes the following packages/apps:
 
-## Getting Started
+### Apps and Packages
 
-Visit https://turbo.build to get started with Turbopack and Turborepo.
+- `docs`: a [Next.js](https://nextjs.org/) app
+- `web`: another [Next.js](https://nextjs.org/) app
+- `ui`: a stub React component library shared by both `web` and `docs` applications
+- `eslint-config-custom`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
+- `tsconfig`: `tsconfig.json`s used throughout the monorepo
 
-## Contributing
+Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
 
-See [CONTRIBUTING.md](./CONTRIBUTING.md) for more information.
+### Utilities
 
-## Community
+This turborepo has some additional tools already setup for you:
 
-The Turbo community can be found on [GitHub Discussions](https://github.com/vercel/turbo/discussions), where you can ask questions, voice ideas, and share your projects.
+- [TypeScript](https://www.typescriptlang.org/) for static type checking
+- [ESLint](https://eslint.org/) for code linting
+- [Prettier](https://prettier.io) for code formatting
 
-To chat with other community members, you can join the [Turbo Discord](https://turbo.build/discord).
+### Build
 
-Our [Code of Conduct](https://github.com/vercel/turbo/blob/main/CODE_OF_CONDUCT.md) applies to all Turbo community channels.
+To build all apps and packages, run the following command:
 
-## Who is using Turbo?
+```
+cd my-turborepo
+npm run build
+```
 
-Turbo is used by the world's leading companies. Check out the [Turbo Showcase](https://turbo.build/showcase) to learn more.
+### Develop
 
-## Updates
+To develop all apps and packages, run the following command:
 
-Follow [@turborepo](https://twitter.com/turborepo) on Twitter and for project updates.
+```
+cd my-turborepo
+npm run dev
+```
 
-## Authors
+### Remote Caching
 
-**Turborepo**
+Turborepo can use a technique known as [Remote Caching](https://turbo.build/repo/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
 
-- Jared Palmer ([@jaredpalmer](https://twitter.com/jaredpalmer))
+By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup), then enter the following commands:
 
-**Turbopack and the Turbo engine**
+```
+cd my-turborepo
+npx turbo login
+```
 
-- Tobias Koppers ([@wSokra](https://twitter.com/wSokra))
-- Maia Teegarden ([@padmaia](https://twitter.com/padmaia))
+This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
 
-## Security
+Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your turborepo:
 
-If you believe you have found a security vulnerability in Turbo, we encourage you to responsibly disclose this and not open a public issue. We will investigate all legitimate reports. Email `security@vercel.com` to disclose any security vulnerabilities.
+```
+npx turbo link
+```
 
-https://vercel.com/security
+## Useful Links
+
+Learn more about the power of Turborepo:
+
+- [Tasks](https://turbo.build/repo/docs/core-concepts/monorepos/running-tasks)
+- [Caching](https://turbo.build/repo/docs/core-concepts/caching)
+- [Remote Caching](https://turbo.build/repo/docs/core-concepts/remote-caching)
+- [Filtering](https://turbo.build/repo/docs/core-concepts/monorepos/filtering)
+- [Configuration Options](https://turbo.build/repo/docs/reference/configuration)
+- [CLI Usage](https://turbo.build/repo/docs/reference/command-line-reference)

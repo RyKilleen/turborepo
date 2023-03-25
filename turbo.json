@@ -1,45 +1,16 @@
 {
-  "$schema": "./docs/public/schema.json",
+  "$schema": "https://turbo.build/schema.json",
+  "globalDependencies": ["**/.env.*local"],
   "pipeline": {
-    "test": {
-      "outputs": ["coverage/**/*"],
-      "dependsOn": ["^build"]
+    "build": {
+      "dependsOn": ["^build"],
+      "outputs": ["dist/**"]
     },
-
-    // lint tasks
-    "lint": {},
-    // root lint task runs toml check and prettier
-    // TODO: run prettier in individual workspaces instead of globally.
-    "//#lint": {
-      "dependsOn": ["//#check:toml", "//#check:prettier"]
-    },
-    "//#check:prettier": {},
-    "//#check:toml": {},
-    "check-types": {
-      "dependsOn": ["^build"]
+    "lint": {
+      "outputs": []
     },
     "dev": {
       "cache": false
-    },
-    "//#build:ts": {
-      "outputs": ["packages/**/dist"]
-    },
-    "build": {
-      "outputs": ["dist/**/*", ".next/**/*"],
-      "dependsOn": ["^build"]
-    },
-    "//#run-example": {
-      "inputs": [
-        "examples/**/*.ts",
-        "examples/**/*.tsx",
-        "examples/**/*.json",
-        "examples/**/*.js",
-        "examples/**/*.yaml",
-        "cli/**/*.go",
-        "cli/go.mod",
-        "cli/go.sum",
-        "./scripts/run-example.sh"
-      ]
     }
   }
 }
