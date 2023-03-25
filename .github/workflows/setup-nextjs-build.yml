@@ -59,7 +59,6 @@ jobs:
 
       - name: Build next.js volume
         run: |
-          ./next-dev --version
           docker volume create nextjs-test-volume
           # Run a dummy container to cp checked out next.js to the volume
           docker run --rm -d --mount src=nextjs-test-volume,dst=/work --name dummy mcr.microsoft.com/playwright:v1.28.1-focal tail -f /dev/null

@@ -520,6 +520,31 @@ jobs:
             fi
           fi
 
+  next_dev_check:
+    needs: [determine_jobs]
+    if: needs.determine_jobs.outputs.rust == 'true'
+    name: Check next-swc
+    runs-on: ubuntu-latest-16-core-oss
+    steps:
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: tune linux network
+        run: sudo ethtool -K eth0 tx off rx off
+
+      - name: Checkout Next.js
+        uses: actions/checkout@v3
+        with:
+          repository: vercel/next.js
+          ref: ${{ env.NEXTJS_VERSION }}
+
+      - name: Build next-swc
+        run: |
+          cd packages/next-swc
+          cargo check --message-format short --quiet
+          cargo check -p next-swc-napi --features plugin,rustls-tls --message-format short --quiet
+          cargo check -p next-dev --no-default-features --features cli,custom_allocator,rustls-tls,__internal_nextjs_integration_test --message-format short --quiet
+
   turborepo_rust_test:
     needs: [determine_jobs, rust_prepare]
     # We test dependency changes only on main
